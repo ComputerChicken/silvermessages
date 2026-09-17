@@ -3,5 +3,15 @@
     "hash": "$argon2id$v=19$m=65536,p=4,t=3$UKMTFHGwUeGJZcz3FmexTg$LuscSgDuwF8K3G95lmvjLgHkf2YLXjTPw7zw0T7eqBw",
     "uid": "38bad2e171b5b6d4cfde5c664b16024713087cfc5b455b5c851fb2435f1242a6",
     "name": "Darragh"
+  },
+  "Halstonko": {
+    "hash": "$argon2id$v=19$m=65536,p=4,t=3$ju59Scq41Xvr2VkVWwcpaQ$nUoIYRbM/sLlty0kdi3GqBOwV3WFP52zIzC1Eqg94hs",
+    "uid": "582b984f5d063085f9aeb3f74f8c8950cff6d021cb8320287c23e1b64dbc2166",
+    "name": "Halston"
+  },
+  "PuhPounder3000": {
+    "hash": "$argon2id$v=19$m=65536,p=4,t=3$kVKbLjOVIurekU9SdYKgDA$DrGHBO1biqkWbLblYspPlREW6XQ0mZ9miOKhGsM47O8",
+    "uid": "cd6a3bf5b8144776b5945e924d2d890a055ad8eb5b2dcefacdf558c99d4d1692",
+    "name": "Meow"
   }
 }

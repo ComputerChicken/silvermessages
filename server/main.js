@@ -105,6 +105,14 @@ async function sendChat(chat, user, message) {
     return;
 }
 
+async function resetChat(chat) {
+    const data = await fs.readFile(chat, 'utf8');
+    const dataJSON = JSON.parse(data);
+    dataJSON.chats = [];
+    await fs.writeFile(chat, JSON.stringify(dataJSON, null, 2), 'utf8');
+    return;
+}
+
 async function getUserFromUid(uid) {
     const data = await fetchAllUsers();
     for(const user of Object.keys(data)) {
@@ -153,6 +161,13 @@ app.post('/send', async (req, res) => {
     const user = await getUserFromUid(data.uid);
     sendChat(data.chat, user, data.message);
     res.status(201).send("ya");
+});
+
+// POST route to reset chat
+app.post('/reset', async (req, res) => {
+    const data = req.body;
+    resetChat(data.chat);
+    res.status(200).send("ya");
 });
 
 // POST route for retrieving chats
