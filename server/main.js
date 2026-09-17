@@ -120,7 +120,7 @@ app.post('/login', async (req, res) => {
     const data = req.body;
     const userData = await fetchUserData(data.username)
     if(userData != null) {
-        const isMatch = await argon2.verify(userData.hash, data.hash);
+        const isMatch = await argon2.verify(userData.hash, data.password);
         if(isMatch) {
             res.status(200).send(userData.uid);
         } else {
