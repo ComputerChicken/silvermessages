@@ -11,10 +11,12 @@
     <div id="chat-container">
     </div>
     <div id="add-chat-dialog">
+        <div id="selected-users" class="thingy"></div>
         <div id="close-dialog" onclick="document.getElementById('add-chat-dialog').style.display ='none';">X</div>
         <input placeholder="Find People" id="people-search">
         <div id="people">
         </div>
+        <button onclick="async function temp() {await startChat(); populateChats(); document.getElementById('add-chat-dialog').style.display ='none'}; temp()">Done</button>
     </div>
 </body>
 <script>
@@ -32,7 +34,9 @@
         window.location = "/register"
     }
 
-    async function startChat(user) {
+    var selectedUsers = [];
+
+    async function startChat() {
         const response = await fetch("http://161.97.222.175:17356/create-chat", {
             method: 'POST',
             headers: {
@@ -40,7 +44,7 @@
             },
             body: JSON.stringify({
                 uid: uid,
-                users: [user]
+                users: selectedUsers
             })
         });
         return 0;
@@ -82,7 +86,7 @@
             const personDiv = document.createElement("div");
             personDiv.className = "person";
             personDiv.innerHTML = responseJSON[user].name+"<br>@"+user
-            personDiv.onclick = async function() { await startChat(user); populateChats(); document.getElementById('add-chat-dialog').style.display ='none'};
+            personDiv.onclick = async function() { selectedUsers.push(user); document.getElementById("selected-users").textContent = selectedUsers.join(", "); };
             document.getElementById("people").appendChild(personDiv);
         }
     }
