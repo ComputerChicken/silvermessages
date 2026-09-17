@@ -148,3 +148,8 @@ button:hover {
 #chat-body {
     color: #fff;
 }
+
+.thingy {
+    color: #fff;
+    cursor: pointer;
+}
