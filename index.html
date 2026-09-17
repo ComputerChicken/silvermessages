@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SilverMessages</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="add-chat" onclick="document.getElementById('add-chat-dialog').style.display ='flex';">+</div>
+    <div id="chat-container">
+    </div>
+    <div id="add-chat-dialog">
+        <div id="close-dialog" onclick="document.getElementById('add-chat-dialog').style.display ='none';">X</div>
+        <input placeholder="Find People" id="people-search">
+        <div id="people">
+        </div>
+    </div>
+</body>
+<script>
+    function updatePageAndParam(relativePath, paramKey, paramValue) {
+        const url = new URL(relativePath, window.location.origin);
+        
+        url.search = window.location.search;
+        url.searchParams.set(paramKey, paramValue);
+
+        window.location.href =  url.pathname + url.search;
+    }
+
+    const uid = localStorage.getItem('uid');
+    if(!uid) {
+        window.location = "/register"
+    }
+
+    async function startChat(user) {
+        const response = await fetch("http://161.97.222.175:17356/create-chat", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                uid: uid,
+                users: [user]
+            })
+        });
+        return 0;
+    }
+
+    async function populateChats() {
+        const response = await fetch("http://161.97.222.175:17356/get-chats", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                uid: uid
+            })
+        });
+        document.getElementById("chat-container").innerHTML = "";
+        for(const chat of await response.json()) {
+            const chatDiv = document.createElement("div");
+            chatDiv.className = "chat"
+            chatDiv.textContent = chat.users.join(", ");
+            chatDiv.onclick = function() {localStorage.setItem("chatID", chat.chatID); window.location = "/chat"}
+            document.getElementById("chat-container").appendChild(chatDiv);
+        }
+    }
+
+    async function populatePeople() {
+        const response = await fetch("http://161.97.222.175:17356/search-people", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                search: document.getElementById("people-search").value
+            })
+        });
+        const responseJSON = await response.json()
+        document.getElementById("people").innerHTML = "";
+        for(const user of Object.keys(responseJSON)) {
+            const personDiv = document.createElement("div");
+            personDiv.className = "person";
+            personDiv.innerHTML = responseJSON[user].name+"<br>@"+user
+            personDiv.onclick = async function() { await startChat(user); populateChats(); document.getElementById('add-chat-dialog').style.display ='none'};
+            document.getElementById("people").appendChild(personDiv);
+        }
+    }
+
+    document.getElementById("people-search").addEventListener('input', (event) => {
+        populatePeople();
+    });
+
+    populateChats();
+</script>
+</html>

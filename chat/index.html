@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SilverMessages</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div id="chat-body"></div>
+    <input id="chat-input" placeholder="Send something....">
+</body>
+<script>
+    const uid = localStorage.getItem('uid');
+    if(!uid) {
+        window.location = "/register"
+    }
+
+    const chatID = localStorage.getItem('chatID');
+
+
+    async function updateChat() {
+        const response = await fetch("http://161.97.222.175:17356/fetch-chat", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: chatID
+            })
+        });
+        const responseJSON = await response.json()
+        document.getElementById("chat-body").innerHTML = responseJSON.chats.join("<br>");
+    }
+
+    setInterval(updateChat, 500);
+
+    const inputField = document.getElementById("chat-input");
+
+    inputField.addEventListener("keydown", async function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            const response = await fetch("http://161.97.222.175:17356/send", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    uid: uid,
+                    chat: chatID,
+                    message: inputField.value
+                })
+            });
+            inputField.value = "";
+        }
+    });
+
+</script>
+</html>

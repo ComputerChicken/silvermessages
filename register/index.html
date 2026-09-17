@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SilverMessages</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="form" id="register-form">
+        <input placeholder="Name" id="name">
+        <input placeholder="Username" id="username">
+        <input placeholder="Password" id="password" type="password">
+        <button onclick="submit()">Submit</button>
+    </div>
+</body>
+<script>
+    async function submit() {
+        const response = await fetch("http://161.97.222.175:17356/register", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: document.getElementById("name").value,
+                username: document.getElementById("username").value,
+                password: document.getElementById("password").value
+            })
+        });
+
+        if(!response.ok) {
+            if(document.getElementById("errorP")) {
+                document.getElementById("errorP").textContent = await response.text();
+            } else {
+                const errorP = document.createElement("p");
+                errorP.textContent = await response.text();
+                errorP.id = "errorP";
+                document.getElementById("register-form").prepend(errorP);
+            }
+            return;
+        }
+
+        const responseText = await response.text();
+
+        localStorage.setItem("uid", responseText)
+
+        window.location = "/"
+    }
+</script>
+</html>
