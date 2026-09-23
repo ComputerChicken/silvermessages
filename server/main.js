@@ -196,7 +196,6 @@ app.post('/register', async (req, res) => {
 app.post('/validate-uid', async (req, res) => {
     const data = req.body;
     if(await getUserFromUid(data.uid)) {
-        console.log(await getUserFromUid(data.uid))
         res.status(200).send("Good");
     } else {
         res.status(403).send("Bad");
