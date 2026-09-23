@@ -30,9 +30,16 @@
     }
 
     const uid = localStorage.getItem('uid');
-    if(!uid) {
-        window.location = "/register"
-    }
+
+    fetch("http://161.97.222.175:17356/validate-uid", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            uid: localStorage.getItem('uid')
+        })
+    }).then(response => {if (!response.ok) { localStorage.setItem('uid', ''); window.location = "/register"; }})
 
     let username = "";
 
