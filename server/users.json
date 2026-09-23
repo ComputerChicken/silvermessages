@@ -13,5 +13,10 @@
     "hash": "$argon2id$v=19$m=65536,p=4,t=3$kVKbLjOVIurekU9SdYKgDA$DrGHBO1biqkWbLblYspPlREW6XQ0mZ9miOKhGsM47O8",
     "uid": "cd6a3bf5b8144776b5945e924d2d890a055ad8eb5b2dcefacdf558c99d4d1692",
     "name": "Meow"
+  },
+  "test": {
+    "hash": "$argon2id$v=19$m=65536,p=4,t=3$DdzEh+dzzA0+pTFj+2pZnw$lH2QzOMqmKUMU5/SoSjKUMNSNdCTlvubVFjVIE5MwOE",
+    "uid": "0f09d6886406d6eec568e600c818343b024c50e043bed259b149d67adeabdc46",
+    "name": "test"
   }
 }

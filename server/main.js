@@ -2,6 +2,7 @@ const express = require('express');
 const argon2 = require('argon2');
 const cors = require('cors');
 const fs = require("fs/promises");
+const { randomUUID } = require('crypto');
 
 const app = express();
 const PORT = 17356;
@@ -68,15 +69,17 @@ async function register(name, username, password) {
 async function getChats(UID) {
     try {
         const files = await fs.readdir("./");
-        
-        const matchedFiles = files.filter(file => file.includes(UID));
+
+        const matchedFiles = files.filter(file => file.includes("chat"));
 
         var chats = [];
 
         for(const file of matchedFiles) {
             const data = await fs.readFile(file, 'utf8');
             const dataJSON = JSON.parse(data);
-            chats.push({chatID: file, users: dataJSON.users});
+            if(dataJSON.uids.includes(UID)) {
+                chats.push({chatID: file, users: dataJSON.users});
+            }
         }
 
         return chats;
@@ -86,15 +89,49 @@ async function getChats(UID) {
     }
 }
 
+function generateRandomString(length) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+}
+
+const arraysEqual = (a, b) => 
+            a.length === b.length && a.every((val, index) => val === b[index]);
+
 async function startChat(UIDs) {
     var users = []
     for(const uid of UIDs) {
         users.push(await getUserFromUid(uid));
     }
-    await fs.writeFile(UIDs.join('')+".json", JSON.stringify({
-        users: users,
-        chats: []
-    }, null ,2), 'utf8');
+
+    var proceed = true;
+
+    const files = await fs.readdir("./");
+
+    const matchedFiles = files.filter(file => file.includes("chat"));
+
+    for(const file of matchedFiles) {
+        const data = await fs.readFile(file, 'utf8');
+        const dataJSON = JSON.parse(data);
+        if(arraysEqual(dataJSON.users,users)) {
+            proceed = false;
+        }
+    }
+
+    if(proceed) {
+        await fs.writeFile("chat" + generateRandomString(20) + ".json", JSON.stringify({
+            uids: UIDs,
+            users: users,
+            chats: []
+        }, null ,2), 'utf8');
+
+        return 0;
+    } else {
+        return -1;
+    }
 }
 
 async function sendChat(chat, user, message) {
@@ -197,7 +234,12 @@ app.post('/create-chat', async (req, res) => {
         uids.push(userData.uid);
     }
     startChat(uids);
-    res.status(201).send("ya it worked");
+    res.status(201).send();
+});
+
+app.post('/get-username', async (req, res) => {
+    const data = req.body;
+    res.status(200).send(await getUserFromUid(data.uid));
 });
 
 app.post('/fetch-chat', async (req, res) => {
@@ -208,5 +250,5 @@ app.post('/fetch-chat', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running at http://161.97.222.175:${PORT}`);
+    console.log(`Server running at http://localhost:${PORT}`);
 });
