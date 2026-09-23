@@ -192,6 +192,16 @@ app.post('/register', async (req, res) => {
     }
 });
 
+// POST for registering providing UID
+app.post('/validate-uid', async (req, res) => {
+    const data = req.body;
+    if(getUserFromUid(data.uid)) {
+        res.status(200).send("Good");
+    } else {
+        res.status(403).send("Bad");
+    }
+});
+
 // POST route to send message
 app.post('/send', async (req, res) => {
     const data = req.body;
