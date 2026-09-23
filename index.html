@@ -12,11 +12,11 @@
     </div>
     <div id="add-chat-dialog">
         <div id="selected-users" class="thingy"></div>
-        <div id="close-dialog" onclick="document.getElementById('add-chat-dialog').style.display ='none';">X</div>
+        <div id="close-dialog" onclick="document.getElementById('add-chat-dialog').style.display ='none'; selectedUsers = []; document.getElementById('selected-users').textContent = ''; document.getElementById('people').innerHTML = ''; document.getElementById('people-search').value = '';">X</div>
         <input placeholder="Find People" id="people-search">
         <div id="people">
         </div>
-        <button onclick="async function temp() {await startChat(); populateChats(); document.getElementById('add-chat-dialog').style.display ='none'}; temp()">Done</button>
+        <button onclick="done()">Done</button>
     </div>
 </body>
 <script>
@@ -33,6 +33,18 @@
     if(!uid) {
         window.location = "/register"
     }
+
+    let username = "";
+
+    fetch("http://161.97.222.175:17356/get-username", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            uid: uid
+        })
+    }).then(response => response.text()).then(data => {username = data});
 
     var selectedUsers = [];
 
@@ -83,11 +95,13 @@
         const responseJSON = await response.json()
         document.getElementById("people").innerHTML = "";
         for(const user of Object.keys(responseJSON)) {
-            const personDiv = document.createElement("div");
-            personDiv.className = "person";
-            personDiv.innerHTML = responseJSON[user].name+"<br>@"+user
-            personDiv.onclick = async function() { selectedUsers.push(user); document.getElementById("selected-users").textContent = selectedUsers.join(", "); };
-            document.getElementById("people").appendChild(personDiv);
+            if(!selectedUsers.includes(user) && user != username) {
+                const personDiv = document.createElement("div");
+                personDiv.className = "person";
+                personDiv.innerHTML = responseJSON[user].name+"<br>@"+user
+                personDiv.onclick = async function() { selectedUsers.push(user); document.getElementById("selected-users").textContent = selectedUsers.join(", "); document.getElementById("people-search").value = ""; document.getElementById('people').innerHTML = ''; };
+                document.getElementById("people").appendChild(personDiv);
+            }
         }
     }
 
@@ -96,5 +110,17 @@
     });
 
     populateChats();
-</script>
+
+    async function done() {
+        if(selectedUsers.length !== 0) {
+            await startChat();
+            populateChats();
+            document.getElementById('add-chat-dialog').style.display ='none';
+            document.getElementById('selected-users').textContent = '';
+            document.getElementById('people').innerHTML = '';
+            document.getElementById('people-search').value = '';
+            selectedUsers = [];
+        }
+    }
+    </script>
 </html>
