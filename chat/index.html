@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-    <div id="chat-body"></div>
+    <div id="chat-body" class="no-scrollbar"></div>
     <input id="chat-input" placeholder="Send something....">
 </body>
 <script>
@@ -17,6 +17,26 @@
     }
 
     const chatID = localStorage.getItem('chatID');
+
+    let name = "";
+
+    fetch("http://161.97.222.175:17356/get-name", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            uid: uid
+        })
+    }).then(response => response.text()).then(data => {name = data});
+
+    var lastChats = [];
+
+    const arraysDoNotMatch = (arr1, arr2) => {
+        if (arr1.length !== arr2.length) return true; 
+        
+        return arr1.some((val, index) => val !== arr2[index]);
+    };
 
 
     async function updateChat() {
@@ -30,7 +50,21 @@
             })
         });
         const responseJSON = await response.json()
-        document.getElementById("chat-body").innerHTML = responseJSON.chats.join("<br>");
+        var chats = responseJSON.chats;
+        if(arraysDoNotMatch(chats, lastChats)) {
+            console.log(chats)
+            console.log(lastChats)
+            lastChats = [...responseJSON.chats];
+            for(let i = 0; i < chats.length; i++) {
+                if(chats[i].startsWith(name)) {
+                    chats[i] = '<p class="own">' + chats[i].replace(name, "You") + '</p>';
+                } else {
+                    chats[i] = '<p class="message">' + chats[i] + '</p>';
+                }
+            }
+            document.getElementById("chat-body").innerHTML = chats.join("");
+            document.getElementById("chat-body").scrollTop = document.getElementById("chat-body").scrollHeight;
+        }
     }
 
     setInterval(updateChat, 500);
@@ -65,7 +99,6 @@
                 })
             });
             inputField.value = "";
-	    document.getElementById("chat-body").scrollTop = document.getElementById("chat-body").scrollHeight;
         }
     });
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));

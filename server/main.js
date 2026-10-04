@@ -206,7 +206,8 @@ app.post('/validate-uid', async (req, res) => {
 app.post('/send', async (req, res) => {
     const data = req.body;
     const user = await getUserFromUid(data.uid);
-    sendChat(data.chat, user, data.message);
+    const name = (await fetchUserData(user)).name;
+    sendChat(data.chat, name, data.message);
     res.status(201).send("ya");
 });
 
@@ -220,7 +221,16 @@ app.post('/reset', async (req, res) => {
 // POST route for retrieving chats
 app.post('/get-chats', async (req, res) => {
     const data = req.body;
-    res.status(200).json(await getChats(data.uid));
+    const chats = await getChats(data.uid);
+    let newChats = [];
+    for(const chat of chats) {
+        let tempChat = {chatID: chat.chatID, users: []}
+        for(const user of chat.users) {
+            tempChat.users.push((await fetchUserData(user)).name);
+        }
+        newChats.push(tempChat);
+    }
+    res.status(200).json(newChats);
 });
 
 // GET route for searching people
@@ -250,6 +260,11 @@ app.post('/create-chat', async (req, res) => {
 app.post('/get-username', async (req, res) => {
     const data = req.body;
     res.status(200).send(await getUserFromUid(data.uid));
+});
+
+app.post('/get-name', async (req, res) => {
+    const data = req.body;
+    res.status(200).send((await fetchUserData(await getUserFromUid(data.uid))).name);
 });
 
 app.post('/fetch-chat', async (req, res) => {
