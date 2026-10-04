@@ -78,7 +78,7 @@ async function getChats(UID) {
             const data = await fs.readFile(file, 'utf8');
             const dataJSON = JSON.parse(data);
             if(dataJSON.uids.includes(UID)) {
-                chats.push({chatID: file, users: dataJSON.users});
+                chats.push({chatID: file, users: dataJSON.users, isUnread: dataJSON.unread.includes(UID)});
             }
         }
 
@@ -125,6 +125,8 @@ async function startChat(UIDs) {
         await fs.writeFile("chat" + generateRandomString(20) + ".json", JSON.stringify({
             uids: UIDs,
             users: users,
+            unread: [],
+            typing: [],
             chats: []
         }, null ,2), 'utf8');
 
@@ -134,10 +136,11 @@ async function startChat(UIDs) {
     }
 }
 
-async function sendChat(chat, user, message) {
+async function sendChat(chat, user, uid, message) {
     const data = await fs.readFile(chat, 'utf8');
     const dataJSON = JSON.parse(data);
     dataJSON.chats.push(user+": "+message);
+    dataJSON.unread = dataJSON.uids.filter(item => item != uid);
     await fs.writeFile(chat, JSON.stringify(dataJSON, null, 2), 'utf8');
     return;
 }
@@ -207,7 +210,7 @@ app.post('/send', async (req, res) => {
     const data = req.body;
     const user = await getUserFromUid(data.uid);
     const name = (await fetchUserData(user)).name;
-    sendChat(data.chat, name, data.message);
+    sendChat(data.chat, name, data.uid, data.message);
     res.status(201).send("ya");
 });
 
@@ -224,7 +227,7 @@ app.post('/get-chats', async (req, res) => {
     const chats = await getChats(data.uid);
     let newChats = [];
     for(const chat of chats) {
-        let tempChat = {chatID: chat.chatID, users: []}
+        let tempChat = {chatID: chat.chatID, users: [], isUnread: chat.isUnread}
         for(const user of chat.users) {
             tempChat.users.push((await fetchUserData(user)).name);
         }
@@ -271,9 +274,20 @@ app.post('/fetch-chat', async (req, res) => {
     const data = req.body;
     const chatData = await fs.readFile(data.id, 'utf8');
     const dataJSON = JSON.parse(chatData);
+    dataJSON.unread = dataJSON.unread.filter(item => item != data.uid);
+    if(data.typing) {
+        if(!dataJSON.typing.includes(data.uid)) {
+            dataJSON.typing.push(data.uid);
+        }
+    } else {
+        if(dataJSON.typing.includes(data.uid)) {
+            dataJSON.typing = dataJSON.typing.filter(item => item != data.uid);
+        }
+    }
+    await fs.writeFile(data.id, JSON.stringify(dataJSON, null, 2), 'utf8');
     res.status(200).json(dataJSON);
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running at http://161.97.222.175:${PORT}`);
+    console.log(`Server running at http://localhost:${PORT}`);
 });

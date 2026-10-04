@@ -19,6 +19,7 @@ div {
 }
 
 .chat {
+    position: relative;
     font-size: 30px;
     background-color: #000;
     border: 2px #fff solid;
@@ -187,4 +188,23 @@ button:hover {
 
 .no-scrollbar::-webkit-scrollbar {
     display: none;
+}
+
+.unread {
+    position: absolute;
+    background-color: #00f;
+    box-shadow: 0 0 20px 0px #55f,
+    0 0 20px 0px #77f;
+    width: 50px;
+    height: 50px;
+    top: -25px;
+    left: -25px;
+    border-radius: 100%;
+}
+
+#typing {
+    position: fixed;
+    top: calc(75vh + 75px);
+    color: #fff;
+    text-shadow: 0 0 20px;
 }

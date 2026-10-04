@@ -31,7 +31,7 @@
 
     const uid = localStorage.getItem('uid');
 
-    fetch("http://161.97.222.175:17356/validate-uid", {
+    fetch("http://localhost:17356/validate-uid", {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -43,7 +43,7 @@
 
     let username = "";
 
-    fetch("http://161.97.222.175:17356/get-username", {
+    fetch("http://localhost:17356/get-username", {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -56,7 +56,7 @@
     var selectedUsers = [];
 
     async function startChat() {
-        const response = await fetch("http://161.97.222.175:17356/create-chat", {
+        const response = await fetch("http://localhost:17356/create-chat", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -70,7 +70,7 @@
     }
 
     async function populateChats() {
-        const response = await fetch("http://161.97.222.175:17356/get-chats", {
+        const response = await fetch("http://localhost:17356/get-chats", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -79,18 +79,26 @@
                 uid: uid
             })
         });
+        const responseJSON = await response.json();
         document.getElementById("chat-container").innerHTML = "";
-        for(const chat of await response.json()) {
+        for(const chat of responseJSON) {
             const chatDiv = document.createElement("div");
             chatDiv.className = "chat"
             chatDiv.textContent = chat.users.join(", ");
             chatDiv.onclick = function() {localStorage.setItem("chatID", chat.chatID); window.location = "/chat"}
+            if(chat.isUnread) {
+                const unreadMarker = document.createElement("div");
+                unreadMarker.className = "unread"
+                chatDiv.appendChild(unreadMarker)
+            }
             document.getElementById("chat-container").appendChild(chatDiv);
         }
     }
 
+    setInterval(populateChats, 500);
+
     async function populatePeople() {
-        const response = await fetch("http://161.97.222.175:17356/search-people", {
+        const response = await fetch("http://localhost:17356/search-people", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

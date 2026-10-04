@@ -8,6 +8,7 @@
 </head>
 <body>
     <div id="chat-body" class="no-scrollbar"></div>
+    <div id="typing"></div>
     <input id="chat-input" placeholder="Send something....">
 </body>
 <script>
@@ -20,7 +21,7 @@
 
     let name = "";
 
-    fetch("http://161.97.222.175:17356/get-name", {
+    fetch("http://localhost:17356/get-name", {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -38,18 +39,47 @@
         return arr1.some((val, index) => val !== arr2[index]);
     };
 
+    var typers = [];
+
+    async function updateTyping() {
+        document.getElementById("typing").innerHTML = "";
+        for(const typer of typers) {
+            if(typer != uid) {
+                const response = await fetch("http://localhost:17356/get-name", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        uid: typer
+                    })
+                });
+
+                const responseText = await response.text();
+
+                document.getElementById("typing").innerHTML += responseText + " is typing...<br>";
+            }
+        }
+    }
 
     async function updateChat() {
-        const response = await fetch("http://161.97.222.175:17356/fetch-chat", {
+        const response = await fetch("http://localhost:17356/fetch-chat", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                id: chatID
+                id: chatID,
+                uid: uid,
+                typing: document.getElementById("chat-input").value != ""
             })
         });
-        const responseJSON = await response.json()
+        const responseJSON = await response.json();
+        if(arraysDoNotMatch(responseJSON.typing, typers)) {
+            typers = responseJSON.typing;
+            updateTyping();
+        }
+
         var chats = responseJSON.chats;
         if(arraysDoNotMatch(chats, lastChats)) {
             console.log(chats)
@@ -75,7 +105,7 @@
         if (event.key === "Enter") {
             event.preventDefault();
 	    if(inputField.value == "RESET") {
-	        const response = await fetch("http://161.97.222.175:17356/reset", {
+	        const response = await fetch("http://localhost:17356/reset", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -87,7 +117,7 @@
                 inputField.value = "";
                 return;
             }
-            const response = await fetch("http://161.97.222.175:17356/send", {
+            const response = await fetch("http://localhost:17356/send", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
