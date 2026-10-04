@@ -31,7 +31,7 @@
 
     const uid = localStorage.getItem('uid');
 
-    fetch("http://localhost:17356/validate-uid", {
+    fetch("http://161.97.222.175:17356/validate-uid", {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -43,7 +43,7 @@
 
     let username = "";
 
-    fetch("http://localhost:17356/get-username", {
+    fetch("http://161.97.222.175:17356/get-username", {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -56,7 +56,7 @@
     var selectedUsers = [];
 
     async function startChat() {
-        const response = await fetch("http://localhost:17356/create-chat", {
+        const response = await fetch("http://161.97.222.175:17356/create-chat", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -70,7 +70,7 @@
     }
 
     async function populateChats() {
-        const response = await fetch("http://localhost:17356/get-chats", {
+        const response = await fetch("http://161.97.222.175:17356/get-chats", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -98,7 +98,7 @@
     setInterval(populateChats, 500);
 
     async function populatePeople() {
-        const response = await fetch("http://localhost:17356/search-people", {
+        const response = await fetch("http://161.97.222.175:17356/search-people", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
